@@ -4,6 +4,8 @@
     border: 1px solid #000;
     border-radius: 5px;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 .filter h1 {
@@ -11,10 +13,10 @@
     font-size: 24px;
 }
 
-.filter button {
+
+.filter input {
     font-size: 18px;
     padding: 8px 20px;
-    width: 100%;
     border: 1px solid #000;
     border-radius: 5px;
     background-color: #fff;
@@ -26,3 +28,6 @@
     background-color: #f0efef;
     cursor: pointer;
 }
+
+
+

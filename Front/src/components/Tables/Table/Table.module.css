@@ -3,7 +3,8 @@ table{
 }
 
 th{
-    color: rgb(240, 76, 0)
+    color: rgb(240, 76, 0);
+    cursor: pointer;
 }
  
 td {
@@ -12,8 +13,20 @@ td {
     text-align: start;
     padding: 5px 10px;
     max-height: 10px;
-    max-width: 90px;
+    max-width: 80px;
     white-space: nowrap;
     overflow: hidden; 
     text-overflow: ellipsis;
   }
+
+  td:hover {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .inputTD{
+    border: none;
+  }
+
+
+
