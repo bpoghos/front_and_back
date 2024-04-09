@@ -1,17 +1,25 @@
+import { useState } from "react"
 import styles from "./Table.module.css"
 
 export const Table = ({ results }) => {
 
 
+    const [checkClick, setCheckClick] = useState(false)
 
-    
+
+    const handleCheckClick = () => {
+        setCheckClick((prevState) => !prevState);
+    };
+
+
+
 
     return (
         <div className={styles.table}>
             <table>
                 <thead>
                     <tr>
-                        <th><input type="checkbox"/></th>
+                        <th><input type="checkbox" /></th>
                         <th>Group</th>
                         <th>ID</th>
                         <th>Name</th>
@@ -28,7 +36,7 @@ export const Table = ({ results }) => {
                     {
                         results.map((d) => {
                             return <tr key={d.enrollment_id}>
-                                <td className={styles.inputTD}><input type="checkbox"/></td>
+                                <td className={styles.inputTD}><input type="checkbox" onClick={handleCheckClick} /></td>
                                 <td>{d.group_num}</td>
                                 <td>{d.student_id}</td>
                                 <td>{d.name}</td>

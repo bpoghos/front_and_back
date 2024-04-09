@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import styles from "./Filter.module.css"
 
-export const Filter = ({ search, results }) => {
+export const Filter = () => {
 
     const [text, setText] = useState('')
 
     const handleChangeInput = (e) => {
         const inputValue = e.target.value;
         setText(inputValue)
-        search(inputValue)
+       
     }
 
 
@@ -23,15 +23,7 @@ export const Filter = ({ search, results }) => {
                 placeholder="Search"
                 onChange={handleChangeInput}
             />
-            <ul>
-                {results ? (
-                    results.map((result, index) => (
-                        <li key={index}>{result}</li>
-                    ))
-                ) : (
-                    <li>No results</li>
-                )}
-            </ul>
+           
 
         </div>
     )
