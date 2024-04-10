@@ -9,7 +9,7 @@ export const Tables = () => {
 
     const getData = async () => {
         try {
-          const response = await fetch(`http://localhost:4500`);
+          const response = await fetch(`http://localhost:4500/resources`);
           const data = await response.json();
           setResults(data);
         } catch (error) {
@@ -20,11 +20,13 @@ export const Tables = () => {
       useEffect(() => {
         getData()
       }, [])
+
+      console.log(results);
       
     return (
         <div className={styles.tables}>
             <h1>Tables</h1>
-            <Table results={results} />
+            <Table results={results} setResults={setResults}/>
         </div>
     )
 }

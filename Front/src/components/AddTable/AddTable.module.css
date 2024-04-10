@@ -19,6 +19,12 @@
     margin-bottom: 8px;
 }
 
+.addTable textarea{
+    padding: 5px 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
 .addTable button {
     padding: 10px 15px;
     border: none;

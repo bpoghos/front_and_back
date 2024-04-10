@@ -13,7 +13,7 @@ td {
     text-align: start;
     padding: 5px 10px;
     max-height: 10px;
-    max-width: 80px;
+    max-width: 70px;
     white-space: nowrap;
     overflow: hidden; 
     text-overflow: ellipsis;
@@ -24,8 +24,22 @@ td {
     overflow: visible;
   }
 
-  .inputTD{
+  .inputTD,
+  .buttonTD{
     border: none;
+  }
+
+  .buttonTD button{
+    padding: 8px 10px;
+    color: #fff;
+    background-color: rgb(206, 49, 49);
+    border: none;
+    border-radius: 5px;
+  }
+
+  .buttonTD button:hover{
+    background-color: rgb(221, 139, 139);
+    cursor: pointer;
   }
 
 
