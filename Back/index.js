@@ -6,8 +6,9 @@ const cors = require('cors')
 
 
 const app = express()
-app.use(cors())
 
+app.use(cors())
+app.use(express.json());
 
 
 sql.connect(config, err => {
@@ -23,7 +24,7 @@ sql.connect(config, err => {
 app.get("/resources", async (req, res) => {
     try {
         await sql.connect(config);
-     
+
         let queryString = `
             SELECT Groups.group_num, Students.*,Courses.course_name,Courses.course_teacher, Courses.course_details, Enrollment.enrollment_date, Enrollment.enrollment_id
             FROM Enrollment 
@@ -61,18 +62,103 @@ app.get('/resources/:id', (req, res) => {
 // API for post data
 
 // POST method to add new data to the database
+
+
+// app.post("/resources", async (req, res) => {
+//     try {
+//         // Extract data from the request body
+//         const { group_num, name, surname, email_address, age, course_name, course_teacher, course_details, enrollment_date } = req.body;
+
+//         // Connect to the database
+//         await sql.connect(config);
+
+//         // Begin a transaction
+//         const transaction = new sql.Transaction();
+//         await transaction.begin();
+
+//         try {
+//             // Insert data into Students table
+//             const studentQuery = `
+//                 INSERT INTO Students (name, surname, email_address, age)
+//                 OUTPUT INSERTED.student_id
+//                 VALUES (@name, @surname, @email_address, @age)
+//             `;
+//             const studentRequest = new sql.Request(transaction)
+//                 .input('name', sql.NVarChar, name)
+//                 .input('surname', sql.NVarChar, surname)
+//                 .input('email_address', sql.NVarChar, email_address)
+//                 .input('age', sql.Int, age);
+//             const { recordset: [{ student_id }] } = await studentRequest.query(studentQuery);
+
+//             // Insert data into Groups table
+//             const groupQuery = `
+//                 INSERT INTO Groups (student_id, group_num)
+//                 VALUES (@student_id, @group_num)
+//             `;
+//             const groupRequest = new sql.Request(transaction)
+//                 .input('student_id', sql.Int, student_id)
+//                 .input('group_num', sql.Int, group_num);
+//             await groupRequest.query(groupQuery);
+
+//             // Insert data into Courses table
+//             const courseQuery = `
+//                 INSERT INTO Courses (course_name, course_teacher, course_details)
+//                 OUTPUT INSERTED.course_id
+//                 VALUES (@course_name, @course_teacher, @course_details)
+//             `;
+//             const courseRequest = new sql.Request(transaction)
+//                 .input('course_name', sql.NVarChar, course_name)
+//                 .input('course_teacher', sql.NVarChar, course_teacher)
+//                 .input('course_details', sql.NVarChar, course_details);
+//             const { recordset: [{ course_id }] } = await courseRequest.query(courseQuery);
+
+//             // Insert data into Enrollment table
+//             const enrollmentQuery = `
+//                 INSERT INTO Enrollment (student_id, course_id, enrollment_date)
+//                 VALUES (@student_id, @course_id, @enrollment_date)
+//             `;
+//             const enrollmentRequest = new sql.Request(transaction)
+//                 .input('student_id', sql.Int, student_id)
+//                 .input('course_id', sql.Int, course_id)
+//                 .input('enrollment_date', sql.Date, enrollment_date);
+//             await enrollmentRequest.query(enrollmentQuery);
+
+//             // Commit the transaction
+//             await transaction.commit();
+
+//             // Send a success response
+//             res.status(201).send("Data added successfully");
+//         } catch (error) {
+//             // If an error occurs, rollback the transaction
+//             await transaction.rollback();
+
+//             // Log the error and send a 500 Internal Server Error response
+//             console.error('Error:', error);
+//             res.status(500).json({ message: 'Internal Server Error' });
+//         } finally {
+//             // Close the transaction and database connection
+//             transaction.close();
+//             sql.close();
+//         }
+//     } catch (error) {
+//         // If an error occurs, log the error and send a 500 Internal Server Error response
+//         console.error('Error:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
+
 app.post("/resources", async (req, res) => {
     try {
         // Extract data from the request body
-        const { group_num, student_id, name, surname /* Add other fields here */ } = req.body;
+        const { group_num, name, surname, email_address, age, course_name, course_teacher, course_details, enrollment_date } = req.body;
 
         // Connect to the database
         await sql.connect(config);
 
-        // Define the SQL query to insert new data into the database
+        // Define the SQL query to insert new data into the database (assuming you're inserting into the Students table)
         const query = `
-            INSERT INTO Enrollment (group_num, student_id, name, surname)
-            VALUES (@group_num, @student_id, @name, @surname)
+            INSERT INTO Students (group_num, name, surname, email_address, age, course_name, course_teacher, course_details, enrollment_date)
+            VALUES (@group_num, @name, @surname, @email_address, @age, @course_name, @course_teacher, @course_details, @enrollment_date)
         `;
 
         // Create a new SQL request
@@ -80,11 +166,14 @@ app.post("/resources", async (req, res) => {
 
         // Add parameters to the query
         request.input('group_num', sql.Int, group_num);
-        request.input('student_id', sql.Int, student_id);
         request.input('name', sql.NVarChar, name);
         request.input('surname', sql.NVarChar, surname);
-
-        // Add other input parameters for other columns and values
+        request.input('email_address', sql.NVarChar, email_address);
+        request.input('age', sql.Int, age);
+        request.input('course_name', sql.VarChar, course_name);
+        request.input('course_teacher', sql.NVarChar, course_teacher);
+        request.input('course_details', sql.VarChar, course_details);
+        request.input('enrollment_date', sql.Date, enrollment_date);
 
         // Execute the query
         await request.query(query);
@@ -100,6 +189,10 @@ app.post("/resources", async (req, res) => {
         sql.close();
     }
 });
+
+
+
+
 
 // API for edit data 
 

@@ -8,7 +8,7 @@ export const AddTable = () => {
     const [group_num, setGroup_num] = useState('')
     const [name, setName] = useState('')
     const [surname, setSurname] = useState('')
-    const [email, setEmail] = useState('')
+    const [email_address, setEmail_address] = useState('')
     const [age, setAge] = useState('')
     const [course_name, setCourse_name] = useState('')
     const [course_teacher, setCourse_teacher] = useState('')
@@ -23,39 +23,59 @@ export const AddTable = () => {
 
     // addData part, create body object and give them type of keys
 
-    const addData = () => {
+    const addData = async () => {
         const parsedGroupNum = parseInt(group_num)
         const parsedAge = parseInt(age)
-
+    
         if (!isNaN(parsedGroupNum) && !isNaN(parsedAge)) {
             const body = {
                 group_num: parsedGroupNum,
                 name,
                 surname,
-                email,
+                email_address,
                 age: parsedAge,
                 course_name,
                 course_teacher,
                 course_details,
-                enrollment_date
-
+                enrollment_date,
             };
-
+    
             console.log(body);
-
-            setGroup_num('')
-            setName('')
-            setSurname('')
-            setEmail('')
-            setAge('')
-            setCourse_name('')
-            setCourse_teacher('')
-            setCourse_details('')
-            setEnrollment_date('')
+    
+            try {
+                const response = await fetch("http://localhost:4500/resources", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    }, 
+                    body: JSON.stringify(body) // Serialize the body object
+                });
+    
+                if (response.ok) {
+                    console.log("Data submitted successfully");
+                    setGroup_num('')
+                    setName('')
+                    setSurname('')
+                    setEmail_address('')
+                    setAge('')
+                    setCourse_name('')
+                    setCourse_teacher('')
+                    setCourse_details('')
+                    setEnrollment_date('')
+                } else {
+                    console.error("Failed to submit data:", response.statusText);
+                }
+            } catch (error) {
+                console.error("Failed to submit data:", error.message);
+            }
         } else {
             console.error('Group or Age number is not a valid number.');
         }
     };
+    
+    
+
+
 
 
 
@@ -65,7 +85,7 @@ export const AddTable = () => {
             <input
                 className={styles.group_numField}
                 type="text"
-                placeholder="Group"
+                placeholder="Group Number"
                 value={group_num}
                 onChange={(e) => setGroup_num(e.target.value)} />
             <input
@@ -84,8 +104,8 @@ export const AddTable = () => {
                 className={styles.emailField}
                 type="text"
                 placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)} />
+                value={email_address}
+                onChange={(e) => setEmail_address(e.target.value)} />
             <input
                 className={styles.ageField}
                 type="text"
