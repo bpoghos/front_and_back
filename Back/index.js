@@ -49,15 +49,38 @@ app.get("/resources", async (req, res) => {
 
 // GET a resource by ID
 
-app.get('/resources/:id', (req, res) => {
-    const resourceId = parseInt(req.params.id);
-    const resource = resources.find(resource => resource.id === resourceId);
-    if (resource) {
-        res.json(resource);
-    } else {
-        res.status(404).json({ message: 'Resource not found' });
+app.get("/resources/:id", async (req, res) => {
+    try {
+        await sql.connect(config);
+
+        const resourceId = req.params.id;
+        let queryString = `
+            SELECT Groups.group_num, Students.*,Courses.course_name,Courses.course_teacher, Courses.course_details, Enrollment.enrollment_date, Enrollment.enrollment_id
+            FROM Enrollment 
+            JOIN Students ON Students.student_id = Enrollment.student_id
+            JOIN Groups ON Students.student_id = Groups.student_id
+            JOIN Courses ON Courses.course_id = Enrollment.course_id
+            WHERE enrollment_id = @resourceId
+        `;
+
+        const result = await new sql.Request()
+            .input('resourceId', sql.Int, resourceId)
+            .query(queryString);
+
+        if (result.recordset.length > 0) {
+            res.send(result.recordset[0]);
+            console.dir(result.recordset[0]);
+        } else {
+            res.status(404).send("Resource not found");
+        }
+    } catch (err) {
+        console.error("Error executing query:", err);
+        res.status(500).send("Error fetching data");
+    } finally {
+        sql.close();
     }
 });
+
 
 // API for post data
 
@@ -157,7 +180,7 @@ app.post("/resources", async (req, res) => {
 
         // Define the SQL query to insert new data into the database (assuming you're inserting into the Students table)
         const query = `
-            INSERT INTO Students (group_num, name, surname, email_address, age, course_name, course_teacher, course_details, enrollment_date)
+            INSERT INTO Enrollment (group_num, name, surname, email_address, age, course_name, course_teacher, course_details, enrollment_date)
             VALUES (@group_num, @name, @surname, @email_address, @age, @course_name, @course_teacher, @course_details, @enrollment_date)
         `;
 

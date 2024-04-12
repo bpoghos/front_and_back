@@ -1,6 +1,7 @@
 import { useState } from "react"
-
+import { Link } from "react-router-dom"
 import { FaTrash } from "react-icons/fa";
+import { FaRegFileLines } from "react-icons/fa6";
 import styles from "./Table.module.css"
 
 export const Table = ({ results, setResults }) => {
@@ -9,42 +10,47 @@ export const Table = ({ results, setResults }) => {
     const [checkClick, setCheckClick] = useState(false)
 
 
+   
+
     const handleCheckClick = (data_id) => {
         setCheckClick(true)
-            if (checkClick) {
-                console.log(data_id); 
+        if (checkClick) {
+            console.log(data_id);
         }
-  
+
+    };
+
+    const handlClickSinglePage = () => {
+        
+    }
+
+    const deleteData = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:4500/resources/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                setResults(results.filter(d => d.enrollment_id !== id));
+            } else {
+                // If the server returns an error status code (4xx or 5xx), throw an error
+                throw new Error('Failed to delete data');
+            }
+        } catch (error) {
+            // If an error occurs during the fetch operation, log the error and re-throw it
+            console.error('Error:', error);
+            throw error;
+        }
     };
 
 
-   const deleteData = async (id) => {
-    try {
-        const response = await fetch(`http://localhost:4500/resources/${id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (response.ok) {
-            setResults(results.filter(d => d.enrollment_id !== id));
-        } else {
-            // If the server returns an error status code (4xx or 5xx), throw an error
-            throw new Error('Failed to delete data');
-        }
-    } catch (error) {
-        // If an error occurs during the fetch operation, log the error and re-throw it
-        console.error('Error:', error);
-        throw error;
-    }
-};
-
-    
 
 
 
-    
+
 
     return (
         <div className={styles.table}>
@@ -68,7 +74,9 @@ export const Table = ({ results, setResults }) => {
                     {
                         results.map((d) => {
                             return <tr key={d.enrollment_id}>
-                                <td className={styles.inputTD}><input type="checkbox" onClick={() => handleCheckClick(d.enrollment_id)} /></td>
+                                <td className={styles.inputTD}>
+                                    <input type="checkbox" onClick={() => handleCheckClick(d.enrollment_id)} />
+                                </td>
                                 <td>{d.group_num}</td>
                                 <td>{d.student_id}</td>
                                 <td>{d.name}</td>
@@ -79,7 +87,13 @@ export const Table = ({ results, setResults }) => {
                                 <td>{d.course_teacher}</td>
                                 <td>{d.course_details}</td>
                                 <td>{d.enrollment_date}</td>
+                                <td>
+                                    <Link to={`/${d.enrollment_id}`}>
+                                        <div><FaRegFileLines /></div>
+                                    </Link>
+                                </td>
                                 <td className={styles.buttonTD} onClick={() => deleteData(d.enrollment_id)}><button ><FaTrash /></button></td>
+                                
                             </tr>
                         })
                     }
