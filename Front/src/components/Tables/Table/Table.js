@@ -8,9 +8,10 @@ export const Table = ({ results, setResults }) => {
 
 
     const [checkClick, setCheckClick] = useState(false)
+    const [sortDirection, setSortDirection] = useState("asc");
+    const [sortedColumn, setSortedColumn] = useState(null);
 
 
-   
 
     const handleCheckClick = (data_id) => {
         setCheckClick(true)
@@ -20,9 +21,23 @@ export const Table = ({ results, setResults }) => {
 
     };
 
-    const handlClickSinglePage = () => {
-        
-    }
+    const handleSortClickGroup = () => {
+        const direction = sortDirection === "asc" ? "desc" : "asc";
+        setSortDirection(direction);
+        setSortedColumn("group_num");
+
+        const sortedResults = [...results].sort((a, b) => {
+            if (direction === "asc") {
+                return a.group_num - b.group_num;
+            } else {
+                return b.group_num - a.group_num;
+            }
+        });
+
+        setResults(sortedResults);
+    };
+
+
 
     const deleteData = async (id) => {
         try {
@@ -51,14 +66,13 @@ export const Table = ({ results, setResults }) => {
 
 
 
-
     return (
         <div className={styles.table}>
             <table>
                 <thead>
                     <tr>
                         <th><input type="checkbox" /></th>
-                        <th>Group</th>
+                        <th onClick={handleSortClickGroup}>Group</th>
                         <th>ID</th>
                         <th>Name</th>
                         <th>Surname</th>
@@ -93,7 +107,7 @@ export const Table = ({ results, setResults }) => {
                                     </Link>
                                 </td>
                                 <td className={styles.buttonTD} onClick={() => deleteData(d.enrollment_id)}><button ><FaTrash /></button></td>
-                                
+
                             </tr>
                         })
                     }

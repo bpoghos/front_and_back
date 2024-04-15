@@ -45,8 +45,6 @@ app.get("/resources", async (req, res) => {
 });
 
 
-
-
 // GET a resource by ID
 
 app.get("/resources/:id", async (req, res) => {
@@ -87,202 +85,66 @@ app.get("/resources/:id", async (req, res) => {
 // POST method to add new data to the database
 
 
-// app.post("/resources", async (req, res) => {
-//     try {
-//         // Extract data from the request body
-//         const { group_num, name, surname, email_address, age, course_name, course_teacher, course_details, enrollment_date } = req.body;
 
-//         // Connect to the database
-//         await sql.connect(config);
-
-//         // Begin a transaction
-//         const transaction = new sql.Transaction();
-//         await transaction.begin();
-
-//         try {
-//             // Insert data into Students table
-//             const studentQuery = `
-//                 INSERT INTO Students (name, surname, email_address, age)
-//                 OUTPUT INSERTED.student_id
-//                 VALUES (@name, @surname, @email_address, @age)
-//             `;
-//             const studentRequest = new sql.Request(transaction)
-//                 .input('name', sql.NVarChar, name)
-//                 .input('surname', sql.NVarChar, surname)
-//                 .input('email_address', sql.NVarChar, email_address)
-//                 .input('age', sql.Int, age);
-//             const { recordset: [{ student_id }] } = await studentRequest.query(studentQuery);
-
-//             // Insert data into Groups table
-//             const groupQuery = `
-//                 INSERT INTO Groups (student_id, group_num)
-//                 VALUES (@student_id, @group_num)
-//             `;
-//             const groupRequest = new sql.Request(transaction)
-//                 .input('student_id', sql.Int, student_id)
-//                 .input('group_num', sql.Int, group_num);
-//             await groupRequest.query(groupQuery);
-
-//             // Insert data into Courses table
-//             const courseQuery = `
-//                 INSERT INTO Courses (course_name, course_teacher, course_details)
-//                 OUTPUT INSERTED.course_id
-//                 VALUES (@course_name, @course_teacher, @course_details)
-//             `;
-//             const courseRequest = new sql.Request(transaction)
-//                 .input('course_name', sql.NVarChar, course_name)
-//                 .input('course_teacher', sql.NVarChar, course_teacher)
-//                 .input('course_details', sql.NVarChar, course_details);
-//             const { recordset: [{ course_id }] } = await courseRequest.query(courseQuery);
-
-//             // Insert data into Enrollment table
-//             const enrollmentQuery = `
-//                 INSERT INTO Enrollment (student_id, course_id, enrollment_date)
-//                 VALUES (@student_id, @course_id, @enrollment_date)
-//             `;
-//             const enrollmentRequest = new sql.Request(transaction)
-//                 .input('student_id', sql.Int, student_id)
-//                 .input('course_id', sql.Int, course_id)
-//                 .input('enrollment_date', sql.Date, enrollment_date);
-//             await enrollmentRequest.query(enrollmentQuery);
-
-//             // Commit the transaction
-//             await transaction.commit();
-
-//             // Send a success response
-//             res.status(201).send("Data added successfully");
-//         } catch (error) {
-//             // If an error occurs, rollback the transaction
-//             await transaction.rollback();
-
-//             // Log the error and send a 500 Internal Server Error response
-//             console.error('Error:', error);
-//             res.status(500).json({ message: 'Internal Server Error' });
-//         } finally {
-//             // Close the transaction and database connection
-//             transaction.close();
-//             sql.close();
-//         }
-//     } catch (error) {
-//         // If an error occurs, log the error and send a 500 Internal Server Error response
-//         console.error('Error:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
-
-// app.post("/resources", async (req, res) => {
-//     try {
-//         // Extract data from the request body
-//         const { group_num, name, surname, email_address, age, course_name, course_teacher, course_details, enrollment_date } = req.body;
-
-//         // Connect to the database
-//         await sql.connect(config);
-
-//         // Define the SQL query to insert new data into the database (assuming you're inserting into the Students table)
-//         const query = `
-//             INSERT INTO Enrollment (group_num, name, surname, email_address, age, course_name, course_teacher, course_details, enrollment_date)
-//             VALUES (@group_num, @name, @surname, @email_address, @age, @course_name, @course_teacher, @course_details, @enrollment_date)
-//         `;
-
-//         // Create a new SQL request
-//         const request = new sql.Request();
-
-//         // Add parameters to the query
-//         request.input('group_num', sql.Int, group_num);
-//         request.input('name', sql.NVarChar, name);
-//         request.input('surname', sql.NVarChar, surname);
-//         request.input('email_address', sql.NVarChar, email_address);
-//         request.input('age', sql.Int, age);
-//         request.input('course_name', sql.VarChar, course_name);
-//         request.input('course_teacher', sql.NVarChar, course_teacher);
-//         request.input('course_details', sql.VarChar, course_details);
-//         request.input('enrollment_date', sql.Date, enrollment_date);
-
-//         // Execute the query
-//         await request.query(query);
-
-//         // Send a success response
-//         res.status(201).send("Data added successfully");
-//     } catch (error) {
-//         // If an error occurs, log the error and send a 500 Internal Server Error response
-//         console.error('Error:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     } finally {
-//         // Close the database connection
-//         sql.close();
-//     }
-// });
-
-
-app.post("/resources", async (req, res) => {
+app.post('/resources', async (req, res) => {
     try {
-        // Extract data from the request body
-        const { name, surname, email_address, age, course_name, course_teacher, course_details } = req.body;
-
         // Connect to the database
         await sql.connect(config);
 
-        // Begin a transaction
-        const transaction = new sql.Transaction();
-        await transaction.begin();
+        const {
+            group_num,
+            name,
+            surname,
+            email_address,
+            age,
+            course_name,
+            course_teacher,
+            course_details,
+            enrollment_date
+        } = req.body;
 
-        try {
-            // Insert into Students table
-            const studentResult = await transaction.request()
-                .input('name', sql.NVarChar, name)
-                .input('surname', sql.NVarChar, surname)
-                .input('email_address', sql.NVarChar, email_address)
-                .input('age', sql.Int, age)
-                .query('INSERT INTO Students (name, surname, email_address, age) VALUES (@name, @surname, @email_address, @age)');
-            
-            if (!studentResult || !studentResult.recordset || studentResult.recordset.length === 0 || !studentResult.recordset[0].insertId) {
-                throw new Error('Failed to insert data into Students table or get insertId');
-            }
+        // Insert a new student into Students table
+        const studentResult = await sql.query`
+            INSERT INTO Students (name, surname, email_address, age)
+            VALUES (${name}, ${surname}, ${email_address}, ${age});
+            SELECT SCOPE_IDENTITY() as student_id;
+        `;
+        const student_id = studentResult.recordset[0].student_id;
 
-            const studentId = studentResult.recordset[0].insertId;
+        // Insert a new course into Courses table
+        const courseResult = await sql.query`
+            INSERT INTO Courses (course_name, course_details, course_teacher)
+            VALUES (${course_name}, ${course_details}, ${course_teacher});
+            SELECT SCOPE_IDENTITY() as course_id;
+        `;
+        const course_id = courseResult.recordset[0].course_id;
 
-            // Insert into Courses table
-            const courseResult = await transaction.request()
-                .input('course_name', sql.NVarChar, course_name)
-                .input('course_teacher', sql.NVarChar, course_teacher)
-                .input('course_details', sql.NVarChar, course_details)
-                .query('INSERT INTO Courses (course_name, course_teacher, course_details) VALUES (@course_name, @course_teacher, @course_details)');
-            
-            if (!courseResult || !courseResult.recordset || courseResult.recordset.length === 0 || !courseResult.recordset[0].insertId) {
-                throw new Error('Failed to insert data into Courses table or get insertId');
-            }
+        // Insert into Groups table
+        const groupResult = await sql.query`
+            INSERT INTO Groups (student_id, group_num)
+            VALUES (${student_id}, ${group_num});
+            SELECT SCOPE_IDENTITY() as group_id;
+        `;
+        const group_id = groupResult.recordset[0].group_id;
 
-            const courseId = courseResult.recordset[0].insertId;
+        // Insert into Enrollment table
+        const enrollmentResult = await sql.query`
+            INSERT INTO Enrollment (enrollment_date, student_id, course_id)
+            VALUES (${enrollment_date}, ${student_id}, ${course_id});
+            SELECT SCOPE_IDENTITY() as enrollment_id;
+        `;
+        const enrollment_id = enrollmentResult.recordset[0].enrollment_id;
 
-            // Insert into Enrollment table
-            const enrollmentResult = await transaction.request()
-                .input('enrollment_date', sql.DateTime, new Date())
-                .input('student_id', sql.Int, studentId)
-                .input('course_id', sql.Int, courseId)
-                .query('INSERT INTO Enrollment (enrollment_date, student_id, course_id) VALUES (@enrollment_date, @student_id, @course_id)');
-            
-            if (!enrollmentResult || !enrollmentResult.recordset || enrollmentResult.recordset.length === 0 || !enrollmentResult.recordset[0].insertId) {
-                throw new Error('Failed to insert data into Enrollment table or get insertId');
-            }
+        console.log('Queries executed successfully.');
 
-            // Commit the transaction
-            await transaction.commit();
+        res.status(200).json({ message: 'Data submitted successfully', student_id, course_id, group_id, enrollment_id });
 
-            // Send a success response
-            res.status(201).send("Data added successfully");
-        } catch (error) {
-            // If an error occurs, rollback the transaction
-            await transaction.rollback();
-            console.error('Error:', error.message);
-            res.status(500).json({ message: 'Internal Server Error' });
-        }
-    } catch (error) {
-        // If an error occurs, log the error and send a 500 Internal Server Error response
-        console.error('Error:', error.message);
-        res.status(500).json({ message: 'Internal Server Error' });
+    } catch (err) {
+        console.error('Error executing queries:', err);
+        res.status(500).json({ error: err.message || 'Internal Server Error' });
     } finally {
-        // Close the database connection
-        sql.close();
+        // Close the connection
+        await sql.close();
     }
 });
 
@@ -341,9 +203,6 @@ app.delete('/resources/:id', async (req, res) => {
         sql.close();
     }
 });
-
-
-
 
 
 

@@ -1,8 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import styles from "./AddTable.module.css"
 
-export const AddTable = () => {
+export const AddTable = ({ results, setResults }) => {
 
 
     const [group_num, setGroup_num] = useState('')
@@ -19,14 +19,14 @@ export const AddTable = () => {
 
 
 
-
-
-    // addData part, create body object and give them type of keys
+    // addData part, create body object and give them type of key
 
     const addData = async () => {
-        const parsedGroupNum = parseInt(group_num)
-        const parsedAge = parseInt(age)
-    
+        // Define your variables here or pass them as arguments
+        const parsedGroupNum = parseInt(group_num);
+        const parsedAge = parseInt(age);
+
+
         if (!isNaN(parsedGroupNum) && !isNaN(parsedAge)) {
             const body = {
                 group_num: parsedGroupNum,
@@ -39,44 +39,37 @@ export const AddTable = () => {
                 course_details,
                 enrollment_date,
             };
-    
+
             console.log(body);
-    
+
             try {
                 const response = await fetch("http://localhost:4500/resources", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                    }, 
-                    body: JSON.stringify(body) // Serialize the body object
+                    },
+                    body: JSON.stringify(body)
                 });
-    
+    ///////////////////////////////////////////////////////////
                 if (response.ok) {
                     console.log("Data submitted successfully");
-                    setGroup_num('')
-                    setName('')
-                    setSurname('')
-                    setEmail_address('')
-                    setAge('')
-                    setCourse_name('')
-                    setCourse_teacher('')
-                    setCourse_details('')
-                    setEnrollment_date('')
+                    // Fetch updated data and update results state
+                    const updatedResponse = await fetch("http://localhost:4500/resources");
+                    if (updatedResponse.ok) {
+                        const updatedData = await updatedResponse.json();
+                        setResults(updatedData);
+                        ///////////////////////////////////////////////////////////////////////////
+                    } else {
+                        console.error("Failed to fetch updated data:", updatedResponse.statusText);
+                    }
                 } else {
                     console.error("Failed to submit data:", response.statusText);
                 }
             } catch (error) {
                 console.error("Failed to submit data:", error.message);
             }
-        } else {
-            console.error('Group or Age number is not a valid number.');
         }
-    };
-    
-    
-
-
-
+    }
 
 
     return (
