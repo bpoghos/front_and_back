@@ -7,9 +7,11 @@ import styles from "./HomePage.module.css"
 
 
 export const HomePage = () => {
-
+    const [editClick, setEditClick] = useState({})
 
     const [results, setResults] = useState([])
+
+    // Get all data function part
 
     const getData = async () => {
         try {
@@ -26,13 +28,29 @@ export const HomePage = () => {
     }, [])
 
     console.log(results);
+
+    // Edit function part
+
+    const handleEditButtonClick = (id) => {
+        setEditClick((prevState) => ({
+            [id]: !prevState[id] // Toggle the edit state for the specific post ID
+        }));
+
+    }
+
+
     return (
         <div className={styles.homePage}>
             <div className={styles.filterContainer}>
                 <Filter />
-                <AddTable results={results} setResults={setResults} />
+                <AddTable results={results} setResults={setResults} editClick={editClick}/>
             </div>
-            <Tables results={results} setResults={setResults} />
+            <Tables
+                results={results}
+                setResults={setResults}
+                handleEditButtonClick={handleEditButtonClick}
+                editClick={editClick}
+            />
         </div>
     )
 }

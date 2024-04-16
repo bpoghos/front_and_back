@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import styles from "./AddTable.module.css"
 
-export const AddTable = ({ results, setResults }) => {
+export const AddTable = ({ results, setResults, editClick }) => {
 
 
     const [group_num, setGroup_num] = useState('')
@@ -14,6 +14,7 @@ export const AddTable = ({ results, setResults }) => {
     const [course_teacher, setCourse_teacher] = useState('')
     const [course_details, setCourse_details] = useState('')
     const [enrollment_date, setEnrollment_date] = useState('')
+    
 
 
 
@@ -71,6 +72,7 @@ export const AddTable = ({ results, setResults }) => {
         }
     }
 
+    
 
     return (
         <div className={styles.addTable}>
