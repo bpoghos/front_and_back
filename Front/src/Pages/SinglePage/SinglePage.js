@@ -15,7 +15,6 @@ export const SinglePage = () => {
     const getStudent = async (s_id) => {
         const data = await fetch(`http://localhost:4500/resources/${s_id}`)
         const res = await data.json()
-        console.log(res);
         setData(res)
     }
 
@@ -26,7 +25,26 @@ export const SinglePage = () => {
 
 
     return (
-        <div>
+        <div className={styles.singlePage}>
+            <table>
+                <thead>
+                    <th>Group</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Surname</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                    <th>Course</th>
+                    <th>Teacher</th>
+                    <th>Details</th>
+                    <th>Date</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{data.group_num}</td>
+                    </tr>
+                </tbody>
+            </table>
             <h1>{data.name}</h1>
             <h1>{data.surname}</h1>
             <h1>{data.email_address}</h1>

@@ -3,69 +3,27 @@ import { Link } from "react-router-dom"
 import { FaTrash } from "react-icons/fa";
 import { FaRegFileLines, FaPencil } from "react-icons/fa6";
 import { MdOutlineDone } from "react-icons/md";
-import styles from "./Table.module.css"
+import styles from "../Tables.module.css"
 
-export const Table = ({ results, setResults, handleEditButtonClick, editClick }) => {
+export const Table = ({ results, setResults, d }) => {
 
 
     const [checkClick, setCheckClick] = useState(false)
-    const [sortDirection, setSortDirection] = useState("asc");
-    const [sortedColumn, setSortedColumn] = useState(null);
-    
+    const [editClick, setEditClick] = useState({})
+
+
+
+
 
 
     const handleCheckClick = (data_id) => {
         setCheckClick(true)
         if (checkClick) {
-            console.log(data_id);
+
         }
 
     };
 
-
-    const handleSortClickNumber = (columnName) => {
-        const direction = sortDirection === "asc" ? "desc" : "asc";
-        setSortDirection(direction);
-        setSortedColumn(columnName);
-
-        const sortedResults = [...results].sort((a, b) => {
-            if (direction === "asc") {
-                return a[columnName] < b[columnName] ? -1 : 1;
-            } else {
-                return b[columnName] < a[columnName] ? -1 : 1;
-            }
-        });
-
-        setResults(sortedResults);
-    };
-
-    const handleSortClickString = (columnName) => {
-        const direction = sortDirection === "asc" ? "desc" : "asc";
-        setSortDirection(direction);
-        setSortedColumn(columnName);
-
-        const sortedResults = [...results].sort((a, b) => {
-            const nameA = a[columnName].toUpperCase();
-            const nameB = b[columnName].toUpperCase();
-
-            if (direction === "asc") {
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
-            } else {
-                if (nameB < nameA) return -1;
-                if (nameB > nameA) return 1;
-                return 0;
-            }
-        });
-
-        setResults(sortedResults);
-    };
-
-   
-
-
-console.log(editClick);
 
 
     const deleteData = async (id) => {
@@ -92,66 +50,77 @@ console.log(editClick);
 
 
 
+    const handleChangeField = async (id, field, value) => {
+        try {
+            const response = await fetch(`http://localhost:4500/resources/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ [field]: value }),
+            });
 
+            if (response.ok) {
+                const updatedData = await response.json();
+                setResults((prevResults) => 
+                    prevResults.map((item) => 
+                        item.enrollment_id === id ? { ...item, ...updatedData } : item
+                    )
+                );
+            } else {
+                throw new Error('Failed to update data');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    };
+
+
+    const handleEditButtonClick = (id) => {
+        setEditClick((prevState) => ({
+            ...prevState,
+            [id]: !prevState[id],
+        }));
+    };
 
 
     return (
-        <div className={styles.table}>
-            <table>
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" /></th>
-                        <th onClick={() => handleSortClickNumber("group_num", sortDirection, setSortDirection, setSortedColumn, results, setResults)}>Group</th>
-                        <th onClick={() => handleSortClickNumber("student_id", sortDirection, setSortDirection, setSortedColumn, results, setResults)}>ID</th>
-                        <th onClick={() => handleSortClickString("name")}>Name</th>
-                        <th onClick={() => handleSortClickString("surname")}>Surname</th>
-                        <th onClick={() => handleSortClickString("email_address")}>Email</th>
-                        <th onClick={() => handleSortClickNumber("age")}>Age</th>
-                        <th onClick={() => handleSortClickString("course_name")}>Course</th>
-                        <th onClick={() => handleSortClickString("course_teacher")}>Teacher</th>
-                        <th onClick={() => handleSortClickString("course_details")}>Details</th>
-                        <th onClick={() => handleSortClickString("enrollment_date")}>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        results.map((d) => {
-                            return <tr key={d.enrollment_id}>
-                                <td className={styles.inputTD}>
-                                    <input type="checkbox" onClick={() => handleCheckClick(d.enrollment_id)} />
-                                </td>
-                                <td>{editClick[d.enrollment_id] ? <input type="text" value={d.group_num}/> : d.group_num}</td>
-                                <td>{editClick[d.enrollment_id] ? <input type="text" value={d.student_id}/> : d.student_id}</td>
-                                <td>{editClick[d.enrollment_id] ? <input type="text" value={d.name}/> : d.name}</td>
-                                <td>{editClick[d.enrollment_id] ? <input type="text" value={d.surname}/> : d.surname}</td>
-                                <td>{editClick[d.enrollment_id] ? <input type="text" value={d.email_address}/> : d.email_address}</td>
-                                <td>{editClick[d.enrollment_id] ? <input type="text" value={d.age}/> : d.age}</td>
-                                <td>{editClick[d.enrollment_id] ? <input type="text" value={d.course_name}/> : d.course_name}</td>
-                                <td>{editClick[d.enrollment_id] ? <input type="text" value={d.course_teacher}/> : d.course_teacher}</td>
-                                <td>{editClick[d.enrollment_id] ? <textarea type="text" value={d.course_details}/> : d.course_details}</td>
-                                <td>{editClick[d.enrollment_id] ? <input type="text" value={d.enrollment_date}/> : d.enrollment_date}</td>
-                                <td>
-                                    <Link to={`/${d.enrollment_id}`}>
-                                        <div><FaRegFileLines /></div>
-                                    </Link>
-                                </td>
-                                <td>
-                                    <div
-                                        onClick={() => handleEditButtonClick(d.enrollment_id)}
-                                        className={styles.editButton}>
-                                        {editClick[d.enrollment_id] ? <MdOutlineDone style={{ color: 'green' }} /> : <FaPencil />}
-                                    </div>
-                                </td>
-                                <td
-                                    className={styles.buttonTD}
-                                    onClick={() => deleteData(d.enrollment_id)}>
-                                    <button ><FaTrash /></button>
-                                </td>
-                            </tr>
-                        })
-                    }
-                </tbody>
-            </table>
-        </div>
+        <>
+            {
+                <tr key={d.enrollment_id}>
+                    <td className={styles.inputTD}>
+                        <input type="checkbox" onClick={() => handleCheckClick(d.enrollment_id)} />
+                    </td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.group_num} onChange={(e) => handleChangeField(d.enrollment_id, 'group_num', e.target.value)}/> : d.group_num}</td>
+                    <td>{d.student_id}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.name} onChange={(e) => handleChangeField(d.enrollment_id, 'name', e.target.value)} /> : d.name}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.surname} onChange={(e) => handleChangeField(d.enrollment_id, 'surname', e.target.value)} /> : d.surname}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.email_address} onChange={(e) => handleChangeField(d.enrollment_id, 'email_address', e.target.value)} /> : d.email_address}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.age} onChange={(e) => handleChangeField(d.enrollment_id, 'age', e.target.value)} /> : d.age}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.course_name} onChange={(e) => handleChangeField(d.enrollment_id, 'course_name', e.target.value)} /> : d.course_name}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.course_teacher} onChange={(e) => handleChangeField(d.enrollment_id, 'course_teacher', e.target.value)} /> : d.course_teacher}</td>
+                    <td>{editClick[d.enrollment_id] ? <textarea type="text" value={d.course_details} onChange={(e) => handleChangeField(d.enrollment_id, 'course_details', e.target.value)} /> : d.course_details}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.enrollment_date} onChange={(e) => handleChangeField(d.enrollment_id, 'enrollment_date', e.target.value)} /> : d.enrollment_date}</td>
+                    <td>
+                        <Link to={`/${d.enrollment_id}`}>
+                            <div><FaRegFileLines /></div>
+                        </Link>
+                    </td>
+                    <td>
+                        <div
+                            onClick={() => handleEditButtonClick(d.enrollment_id)}
+                            className={styles.editButton}>
+                            {editClick[d.enrollment_id] ? <MdOutlineDone style={{ color: 'green' }} /> : <FaPencil />}
+                        </div>
+                    </td>
+                    <td
+                        className={styles.buttonTD}
+                        onClick={() => deleteData(d.enrollment_id)}>
+                        <button ><FaTrash /></button>
+                    </td>
+                </tr>
+            }
+        </>
     )
 }

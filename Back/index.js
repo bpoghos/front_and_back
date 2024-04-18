@@ -149,22 +149,79 @@ app.post('/resources', async (req, res) => {
 });
 
 
+app.put("/resources/:id", async (req, res) => {
+    try {
+        // Connect to the database
+        await sql.connect(config);
+
+        const enrollmentId = req.params.id;
+        const {
+            group_num,
+            name,
+            surname,
+            email_address,
+            age,
+            course_name,
+            course_teacher,
+            course_details,
+            enrollment_date
+        } = req.body;
+
+        // Update Students table
+        await sql.query`
+            UPDATE Students 
+            SET name = ${sql.VarChar(255)}(${name}), 
+                surname = ${sql.VarChar(255)}(${surname}), 
+                email_address = ${sql.VarChar(255)}(${email_address}), 
+                age = ${sql.Int}(${age})
+            WHERE student_id = (SELECT student_id FROM Enrollment WHERE enrollment_id = ${sql.Int}(${enrollmentId}));
+        `;
+
+        // Update Courses table
+        await sql.query`
+            UPDATE Courses 
+            SET course_name = ${sql.VarChar(255)}(${course_name}), 
+                course_details = ${sql.VarChar(255)}(${course_details}), 
+                course_teacher = ${sql.VarChar(255)}(${course_teacher})
+            WHERE course_id = (SELECT course_id FROM Enrollment WHERE enrollment_id = ${sql.Int}(${enrollmentId}));
+        `;
+
+        // Update Groups table
+        await sql.query`
+            UPDATE Groups 
+            SET group_num = ${sql.VarChar(50)}(${group_num})
+            WHERE student_id = (SELECT student_id FROM Enrollment WHERE enrollment_id = ${sql.Int}(${enrollmentId}));
+        `;
+
+        // Update Enrollment table
+        await sql.query`
+            UPDATE Enrollment 
+            SET enrollment_date = ${sql.DateTime2}(${enrollment_date})
+            WHERE enrollment_id = ${sql.Int}(${enrollmentId});
+        `;
+
+        console.log('Data updated successfully.');
+
+        res.status(200).json({ message: 'Data updated successfully' });
+
+    } catch (err) {
+        console.error('Error executing queries:', err);
+        res.status(500).json({ error: err.message || 'Internal Server Error' });
+    } finally {
+        // Close the connection
+        await sql.close();
+    }
+});
+
+
+
+
 
 
 
 // API for edit data 
 
-app.put('/resources/:id', (req, res) => {
-    const resourceId = parseInt(req.params.id);
-    const updatedResource = req.body;
-    const index = resources.findIndex(resource => resource.id === resourceId);
-    if (index !== -1) {
-        resources[index] = updatedResource;
-        res.json(updatedResource);
-    } else {
-        res.status(404).json({ message: 'Resource not found' });
-    }
-});
+
 
 
 

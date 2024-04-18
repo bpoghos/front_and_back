@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import styles from "./AddTable.module.css"
 
-export const AddTable = ({ results, setResults, editClick }) => {
+export const AddTable = ({ results, setResults }) => {
 
 
     const [group_num, setGroup_num] = useState('')
