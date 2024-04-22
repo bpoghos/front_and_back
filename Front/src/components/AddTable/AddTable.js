@@ -14,7 +14,7 @@ export const AddTable = ({ results, setResults }) => {
     const [course_teacher, setCourse_teacher] = useState('')
     const [course_details, setCourse_details] = useState('')
     const [enrollment_date, setEnrollment_date] = useState('')
-    
+
 
 
 
@@ -51,7 +51,7 @@ export const AddTable = ({ results, setResults }) => {
                     },
                     body: JSON.stringify(body)
                 });
-    ///////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////
                 if (response.ok) {
                     console.log("Data submitted successfully");
                     // Fetch updated data and update results state
@@ -69,10 +69,22 @@ export const AddTable = ({ results, setResults }) => {
             } catch (error) {
                 console.error("Failed to submit data:", error.message);
             }
+
+
         }
+
+        setGroup_num('');
+        setName('');
+        setSurname('');
+        setEmail_address('');
+        setAge('');
+        setCourse_name('');
+        setCourse_details('');
+        setCourse_teacher('');
+        setEnrollment_date('');
     }
 
-    
+
 
     return (
         <div className={styles.addTable}>

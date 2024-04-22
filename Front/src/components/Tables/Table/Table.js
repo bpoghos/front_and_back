@@ -11,6 +11,15 @@ export const Table = ({ results, setResults, d }) => {
     const [checkClick, setCheckClick] = useState(false)
     const [editClick, setEditClick] = useState({})
 
+    const [group_num, setGroup_num] = useState(d.group_num)
+    const [name, setName] = useState(d.name)
+    const [surname, setSurname] = useState(d.surname)
+    const [email_address, setEmail_address] = useState(d.email_address)
+    const [age, setAge] = useState(d.age)
+    const [course_name, setCourse_name] = useState(d.course_name)
+    const [course_teacher, setCourse_teacher] = useState(d.course_teacher)
+    const [course_details, setCourse_details] = useState(d.course_details)
+    const [enrollment_date, setEnrollment_date] = useState(d.enrollment_date)
 
 
 
@@ -57,9 +66,9 @@ export const Table = ({ results, setResults, d }) => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ [field]: value }),
+                body: JSON.stringify({ field, value }),  // Updated this line
             });
-
+    
             if (response.ok) {
                 const updatedData = await response.json();
                 setResults((prevResults) => 
@@ -75,6 +84,7 @@ export const Table = ({ results, setResults, d }) => {
             throw error;
         }
     };
+    
 
 
     const handleEditButtonClick = (id) => {
@@ -92,16 +102,16 @@ export const Table = ({ results, setResults, d }) => {
                     <td className={styles.inputTD}>
                         <input type="checkbox" onClick={() => handleCheckClick(d.enrollment_id)} />
                     </td>
-                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.group_num} onChange={(e) => handleChangeField(d.enrollment_id, 'group_num', e.target.value)}/> : d.group_num}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={group_num} onChange={(e) => handleChangeField(d.enrollment_id, 'group_num', e.target.value)}/> : d.group_num}</td>
                     <td>{d.student_id}</td>
-                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.name} onChange={(e) => handleChangeField(d.enrollment_id, 'name', e.target.value)} /> : d.name}</td>
-                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.surname} onChange={(e) => handleChangeField(d.enrollment_id, 'surname', e.target.value)} /> : d.surname}</td>
-                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.email_address} onChange={(e) => handleChangeField(d.enrollment_id, 'email_address', e.target.value)} /> : d.email_address}</td>
-                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.age} onChange={(e) => handleChangeField(d.enrollment_id, 'age', e.target.value)} /> : d.age}</td>
-                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.course_name} onChange={(e) => handleChangeField(d.enrollment_id, 'course_name', e.target.value)} /> : d.course_name}</td>
-                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.course_teacher} onChange={(e) => handleChangeField(d.enrollment_id, 'course_teacher', e.target.value)} /> : d.course_teacher}</td>
-                    <td>{editClick[d.enrollment_id] ? <textarea type="text" value={d.course_details} onChange={(e) => handleChangeField(d.enrollment_id, 'course_details', e.target.value)} /> : d.course_details}</td>
-                    <td>{editClick[d.enrollment_id] ? <input type="text" value={d.enrollment_date} onChange={(e) => handleChangeField(d.enrollment_id, 'enrollment_date', e.target.value)} /> : d.enrollment_date}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={name} onChange={(e) => handleChangeField(d.enrollment_id, 'name', e.target.value)} /> : d.name}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={surname} onChange={(e) => handleChangeField(d.enrollment_id, 'surname', e.target.value)} /> : d.surname}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={email_address} onChange={(e) => handleChangeField(d.enrollment_id, 'email_address', e.target.value)} /> : d.email_address}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={age} onChange={(e) => handleChangeField(d.enrollment_id, 'age', e.target.value)} /> : d.age}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={course_name} onChange={(e) => handleChangeField(d.enrollment_id, 'course_name', e.target.value)} /> : d.course_name}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={course_teacher} onChange={(e) => handleChangeField(d.enrollment_id, 'course_teacher', e.target.value)} /> : d.course_teacher}</td>
+                    <td>{editClick[d.enrollment_id] ? <textarea type="text" value={course_details} onChange={(e) => handleChangeField(d.enrollment_id, 'course_details', e.target.value)} /> : d.course_details}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={enrollment_date} onChange={(e) => handleChangeField(d.enrollment_id, 'enrollment_date', e.target.value)} /> : d.enrollment_date}</td>
                     <td>
                         <Link to={`/${d.enrollment_id}`}>
                             <div><FaRegFileLines /></div>
@@ -111,7 +121,7 @@ export const Table = ({ results, setResults, d }) => {
                         <div
                             onClick={() => handleEditButtonClick(d.enrollment_id)}
                             className={styles.editButton}>
-                            {editClick[d.enrollment_id] ? <MdOutlineDone style={{ color: 'green' }} /> : <FaPencil />}
+                            {editClick[d.enrollment_id] ? <MdOutlineDone style={{ color: 'green' }}/> : <FaPencil />}
                         </div>
                     </td>
                     <td

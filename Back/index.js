@@ -1,5 +1,6 @@
 const express = require('express');
 const { config } = require("./msConfig");
+const bodyParser = require("body-parser")
 const sql = require('mssql');
 const cors = require('cors')
 
@@ -9,6 +10,7 @@ const app = express()
 
 app.use(cors())
 app.use(express.json());
+app.use(bodyParser.json())
 
 
 sql.connect(config, err => {
@@ -149,70 +151,100 @@ app.post('/resources', async (req, res) => {
 });
 
 
-app.put("/resources/:id", async (req, res) => {
+app.put('/resources/:id', async (req, res) => {
+    const enrollment_id = req.params.id;
+    const { field, value } = req.body;
+
     try {
-        // Connect to the database
-        await sql.connect(config);
+        const pool = await sql.connect(config);
 
-        const enrollmentId = req.params.id;
-        const {
-            group_num,
-            name,
-            surname,
-            email_address,
-            age,
-            course_name,
-            course_teacher,
-            course_details,
-            enrollment_date
-        } = req.body;
+        // Begin transaction
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
 
-        // Update Students table
-        await sql.query`
-            UPDATE Students 
-            SET name = ${sql.VarChar(255)}(${name}), 
-                surname = ${sql.VarChar(255)}(${surname}), 
-                email_address = ${sql.VarChar(255)}(${email_address}), 
-                age = ${sql.Int}(${age})
-            WHERE student_id = (SELECT student_id FROM Enrollment WHERE enrollment_id = ${sql.Int}(${enrollmentId}));
-        `;
+        // Set variables
+        let student_id;
+        let course_id;
+        let group_id;
 
-        // Update Courses table
-        await sql.query`
-            UPDATE Courses 
-            SET course_name = ${sql.VarChar(255)}(${course_name}), 
-                course_details = ${sql.VarChar(255)}(${course_details}), 
-                course_teacher = ${sql.VarChar(255)}(${course_teacher})
-            WHERE course_id = (SELECT course_id FROM Enrollment WHERE enrollment_id = ${sql.Int}(${enrollmentId}));
-        `;
+        // Set student_id and course_id based on enrollment_id
+        const result = await transaction.request()
+            .input('enrollment_id', sql.Int, enrollment_id)
+            .query(`
+                SELECT student_id, course_id
+                FROM Enrollment
+                WHERE enrollment_id = @enrollment_id
+            `);
 
-        // Update Groups table
-        await sql.query`
-            UPDATE Groups 
-            SET group_num = ${sql.VarChar(50)}(${group_num})
-            WHERE student_id = (SELECT student_id FROM Enrollment WHERE enrollment_id = ${sql.Int}(${enrollmentId}));
-        `;
+        if (result.recordset.length === 0) {
+            throw new Error('Enrollment not found');
+        }
 
-        // Update Enrollment table
-        await sql.query`
-            UPDATE Enrollment 
-            SET enrollment_date = ${sql.DateTime2}(${enrollment_date})
-            WHERE enrollment_id = ${sql.Int}(${enrollmentId});
-        `;
+        student_id = result.recordset[0].student_id;
+        course_id = result.recordset[0].course_id;
 
-        console.log('Data updated successfully.');
+        // Update the specific field of the record
+        switch (field) {
+            case 'group_num':
+                await transaction.request()
+                    .input('student_id', sql.Int, student_id)
+                    .input('value', sql.Int, value)
+                    .query(`
+                        UPDATE Groups
+                        SET group_num = @value
+                        WHERE student_id = @student_id
+                    `);
+                break;
+            case 'name':
+            case 'surname':
+            case 'email_address':
+            case 'age':
+                await transaction.request()
+                    .input('student_id', sql.Int, student_id)
+                    .input('value', sql.NVarChar(255), value)
+                    .query(`
+                        UPDATE Students
+                        SET ${field} = @value
+                        WHERE student_id = @student_id
+                    `);
+                break;
+            case 'course_name':
+            case 'course_details':
+            case 'course_teacher':
+                await transaction.request()
+                    .input('course_id', sql.Int, course_id)
+                    .input('value', sql.NVarChar(255), value)
+                    .query(`
+                        UPDATE Courses
+                        SET ${field} = @value
+                        WHERE course_id = @course_id
+                    `);
+                break;
+            case 'enrollment_date':
+                await transaction.request()
+                    .input('enrollment_date', sql.DateTime, value)
+                    .input('student_id', sql.Int, student_id)
+                    .input('course_id', sql.Int, course_id)
+                    .query(`
+                        UPDATE Enrollment
+                        SET enrollment_date = @enrollment_date
+                        WHERE student_id = @student_id AND course_id = @course_id
+                    `);
+                break;
+            default:
+                throw new Error('Invalid field');
+        }
 
-        res.status(200).json({ message: 'Data updated successfully' });
+        // Commit transaction
+        await transaction.commit();
 
-    } catch (err) {
-        console.error('Error executing queries:', err);
-        res.status(500).json({ error: err.message || 'Internal Server Error' });
-    } finally {
-        // Close the connection
-        await sql.close();
+        res.status(200).json({ message: 'Record updated successfully' });
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: 'An error occurred', error: error.message });
     }
 });
-
 
 
 
