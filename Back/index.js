@@ -153,21 +153,28 @@ app.post('/resources', async (req, res) => {
 
 app.put('/resources/:id', async (req, res) => {
     const enrollment_id = req.params.id;
-    const { field, value } = req.body;
+    const fieldsData = req.body;
+
+    console.log("Received fields:", fieldsData);  // Debugging line
+
+    if (typeof fieldsData !== 'object' || fieldsData === null) {
+        console.log('Invalid fields object');
+        return res.status(400).json({ message: 'Invalid fields object' });
+    }
+
+    let pool;
+    let transaction;
 
     try {
-        const pool = await sql.connect(config);
-
-        // Begin transaction
-        const transaction = new sql.Transaction(pool);
+        pool = await sql.connect(config);
+        transaction = new sql.Transaction(pool);
         await transaction.begin();
 
         // Set variables
         let student_id;
         let course_id;
-        let group_id;
 
-        // Set student_id and course_id based on enrollment_id
+        // Get student_id and course_id based on enrollment_id
         const result = await transaction.request()
             .input('enrollment_id', sql.Int, enrollment_id)
             .query(`
@@ -183,56 +190,58 @@ app.put('/resources/:id', async (req, res) => {
         student_id = result.recordset[0].student_id;
         course_id = result.recordset[0].course_id;
 
-        // Update the specific field of the record
-        switch (field) {
-            case 'group_num':
-                await transaction.request()
-                    .input('student_id', sql.Int, student_id)
-                    .input('value', sql.Int, value)
-                    .query(`
-                        UPDATE Groups
-                        SET group_num = @value
-                        WHERE student_id = @student_id
-                    `);
-                break;
-            case 'name':
-            case 'surname':
-            case 'email_address':
-            case 'age':
-                await transaction.request()
-                    .input('student_id', sql.Int, student_id)
-                    .input('value', sql.NVarChar(255), value)
-                    .query(`
-                        UPDATE Students
-                        SET ${field} = @value
-                        WHERE student_id = @student_id
-                    `);
-                break;
-            case 'course_name':
-            case 'course_details':
-            case 'course_teacher':
-                await transaction.request()
-                    .input('course_id', sql.Int, course_id)
-                    .input('value', sql.NVarChar(255), value)
-                    .query(`
-                        UPDATE Courses
-                        SET ${field} = @value
-                        WHERE course_id = @course_id
-                    `);
-                break;
-            case 'enrollment_date':
-                await transaction.request()
-                    .input('enrollment_date', sql.DateTime, value)
-                    .input('student_id', sql.Int, student_id)
-                    .input('course_id', sql.Int, course_id)
-                    .query(`
-                        UPDATE Enrollment
-                        SET enrollment_date = @enrollment_date
-                        WHERE student_id = @student_id AND course_id = @course_id
-                    `);
-                break;
-            default:
-                throw new Error('Invalid field');
+        // Update records based on dynamic fields
+        for (const [key, value] of Object.entries(fieldsData)) {
+            switch (key) {
+                case 'group_num':
+                    await transaction.request()
+                        .input('student_id', sql.Int, student_id)
+                        .input('value', sql.Int, value)
+                        .query(`
+                            UPDATE Groups
+                            SET group_num = @value
+                            WHERE student_id = @student_id
+                        `);
+                    break;
+                case 'name':
+                case 'surname':
+                case 'email_address':
+                case 'age':
+                    await transaction.request()
+                        .input('student_id', sql.Int, student_id)
+                        .input('value', sql.NVarChar(255), value)
+                        .query(`
+                            UPDATE Students
+                            SET ${key} = @value
+                            WHERE student_id = @student_id
+                        `);
+                    break;
+                case 'course_name':
+                case 'course_details':
+                case 'course_teacher':
+                    await transaction.request()
+                        .input('course_id', sql.Int, course_id)
+                        .input('value', sql.NVarChar(255), value)
+                        .query(`
+                            UPDATE Courses
+                            SET ${key} = @value
+                            WHERE course_id = @course_id
+                        `);
+                    break;
+                case 'enrollment_date':
+                    await transaction.request()
+                        .input('enrollment_date', sql.DateTime, value)
+                        .input('student_id', sql.Int, student_id)
+                        .input('course_id', sql.Int, course_id)
+                        .query(`
+                            UPDATE Enrollment
+                            SET enrollment_date = @enrollment_date
+                            WHERE student_id = @student_id AND course_id = @course_id
+                        `);
+                    break;
+                default:
+                    throw new Error('Invalid field');
+            }
         }
 
         // Commit transaction
@@ -242,9 +251,19 @@ app.put('/resources/:id', async (req, res) => {
 
     } catch (error) {
         console.error('Error:', error);
+        if (transaction) {
+            await transaction.rollback();
+        }
         res.status(500).json({ message: 'An error occurred', error: error.message });
+    } finally {
+        if (pool) {
+            pool.close();
+        }
     }
 });
+
+
+
 
 
 
