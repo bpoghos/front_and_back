@@ -8,7 +8,7 @@ import styles from "./HomePage.module.css"
 
 export const HomePage = () => {
     const [results, setResults] = useState([])
-
+    const [searchResults, setSearchResults] = useState([])
     // Get all data function part
 
     const getData = async () => {
@@ -34,7 +34,7 @@ export const HomePage = () => {
     return (
         <div className={styles.homePage}>
             <div className={styles.filterContainer}>
-                <Filter />
+                <Filter results={results} setSearchResults={setSearchResults}/>
                 <AddTable results={results} setResults={setResults} />
             </div>
             <Tables
