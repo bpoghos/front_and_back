@@ -207,37 +207,43 @@ app.put('/resources/:id', async (req, res) => {
                 case 'surname':
                 case 'email_address':
                 case 'age':
-                    await transaction.request()
-                        .input('student_id', sql.Int, student_id)
-                        .input('value', sql.NVarChar(255), value)
-                        .query(`
-                            UPDATE Students
-                            SET ${key} = @value
-                            WHERE student_id = @student_id
-                        `);
+                    if (typeof value === 'string' && value.trim() !== '') { // Check for non-empty string
+                        await transaction.request()
+                            .input('student_id', sql.Int, student_id)
+                            .input('value', sql.NVarChar(255), value)
+                            .query(`
+                                UPDATE Students
+                                SET ${key} = @value
+                                WHERE student_id = @student_id
+                            `);
+                    }
                     break;
                 case 'course_name':
                 case 'course_details':
                 case 'course_teacher':
-                    await transaction.request()
-                        .input('course_id', sql.Int, course_id)
-                        .input('value', sql.NVarChar(255), value)
-                        .query(`
-                            UPDATE Courses
-                            SET ${key} = @value
-                            WHERE course_id = @course_id
-                        `);
+                    if (typeof value === 'string' && value.trim() !== '') { // Check for non-empty string
+                        await transaction.request()
+                            .input('course_id', sql.Int, course_id)
+                            .input('value', sql.NVarChar(255), value)
+                            .query(`
+                                UPDATE Courses
+                                SET ${key} = @value
+                                WHERE course_id = @course_id
+                            `);
+                    }
                     break;
                 case 'enrollment_date':
-                    await transaction.request()
-                        .input('enrollment_date', sql.DateTime, value)
-                        .input('student_id', sql.Int, student_id)
-                        .input('course_id', sql.Int, course_id)
-                        .query(`
-                            UPDATE Enrollment
-                            SET enrollment_date = @enrollment_date
-                            WHERE student_id = @student_id AND course_id = @course_id
-                        `);
+                    if (value instanceof Date) { // Check if value is a Date object
+                        await transaction.request()
+                            .input('enrollment_date', sql.DateTime, value)
+                            .input('student_id', sql.Int, student_id)
+                            .input('course_id', sql.Int, course_id)
+                            .query(`
+                                UPDATE Enrollment
+                                SET enrollment_date = @enrollment_date
+                                WHERE student_id = @student_id AND course_id = @course_id
+                            `);
+                    }
                     break;
                 default:
                     throw new Error('Invalid field');
@@ -261,6 +267,7 @@ app.put('/resources/:id', async (req, res) => {
         }
     }
 });
+
 
 
 

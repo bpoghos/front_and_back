@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { FaTrash } from "react-icons/fa";
 import { FaRegFileLines, FaPencil } from "react-icons/fa6";
@@ -10,6 +10,7 @@ export const Table = ({ results, setResults, d }) => {
 
     const [checkClick, setCheckClick] = useState(false)
     const [editClick, setEditClick] = useState({})
+    
 
 
     const [fieldsData, setFieldsData] = useState({
@@ -27,9 +28,6 @@ export const Table = ({ results, setResults, d }) => {
 
     const handleCheckClick = (data_id) => {
         setCheckClick(true)
-        if (checkClick) {
-
-        }
 
     };
 
@@ -77,6 +75,8 @@ export const Table = ({ results, setResults, d }) => {
                 },
                 body: JSON.stringify(fieldsData),
             });
+
+            
     
             if (response.ok) {
                 // Wait for the JSON response
@@ -97,6 +97,8 @@ export const Table = ({ results, setResults, d }) => {
             [id]: !prevState[id],
         }));
     };
+
+
 
 
     return (

@@ -20,36 +20,19 @@ export const SinglePage = () => {
 
     useEffect(() => {
         getStudent(id)
-    }, [])
+    }, [id])
 
 
 
     return (
         <div className={styles.singlePage}>
-            <table>
-                <thead>
-                    <th>Group</th>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Surname</th>
-                    <th>Email</th>
-                    <th>Age</th>
-                    <th>Course</th>
-                    <th>Teacher</th>
-                    <th>Details</th>
-                    <th>Date</th>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{data.group_num}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <h1>{data.name}</h1>
-            <h1>{data.surname}</h1>
-            <h1>{data.email_address}</h1>
-            <h1>{data.course_name}</h1>
-            <h1>{data.course_teacher}</h1>
+            <h2>Name: {data.name}</h2>
+            <h2>Surname: {data.surname}</h2>
+            <p><strong>Email: </strong>{data.email_address}</p>
+            <p><strong>Coures Name: </strong>{data.course_name}</p>
+            <p><strong>Course Teacher: </strong>{data.course_teacher}</p>
+            <p><strong>Date: </strong>{data.enrollment_date}</p>
+
         </div>
     )
 }
