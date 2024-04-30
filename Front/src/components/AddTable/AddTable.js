@@ -1,34 +1,28 @@
-import { useState } from "react"
-
-import styles from "./AddTable.module.css"
+import { useState } from "react";
+import styles from "./AddTable.module.css";
 
 export const AddTable = ({ results, setResults }) => {
 
+    // State variables to manage form inputs
+    const [group_num, setGroup_num] = useState('');
+    const [name, setName] = useState('');
+    const [surname, setSurname] = useState('');
+    const [email_address, setEmail_address] = useState('');
+    const [age, setAge] = useState('');
+    const [course_name, setCourse_name] = useState('');
+    const [course_teacher, setCourse_teacher] = useState('');
+    const [course_details, setCourse_details] = useState('');
+    const [enrollment_date, setEnrollment_date] = useState('');
 
-    const [group_num, setGroup_num] = useState('')
-    const [name, setName] = useState('')
-    const [surname, setSurname] = useState('')
-    const [email_address, setEmail_address] = useState('')
-    const [age, setAge] = useState('')
-    const [course_name, setCourse_name] = useState('')
-    const [course_teacher, setCourse_teacher] = useState('')
-    const [course_details, setCourse_details] = useState('')
-    const [enrollment_date, setEnrollment_date] = useState('')
-
-
-
-
-
-
-    // addData part, create body object and give them type of key
-
+    // Function to add data
     const addData = async () => {
-        // Define your variables here or pass them as arguments
+        // Parse numeric fields
         const parsedGroupNum = parseInt(group_num);
         const parsedAge = parseInt(age);
 
-
+        // Check if parsed values are not NaN
         if (!isNaN(parsedGroupNum) && !isNaN(parsedAge)) {
+            // Create body object for POST request
             const body = {
                 group_num: parsedGroupNum,
                 name,
@@ -41,9 +35,11 @@ export const AddTable = ({ results, setResults }) => {
                 enrollment_date,
             };
 
+            // Log body for debugging
             console.log(body);
 
             try {
+                // Send POST request to add data
                 const response = await fetch("http://localhost:4500/resources", {
                     method: "POST",
                     headers: {
@@ -51,15 +47,16 @@ export const AddTable = ({ results, setResults }) => {
                     },
                     body: JSON.stringify(body)
                 });
-                ///////////////////////////////////////////////////////////
+
+                // Check if request is successful
                 if (response.ok) {
                     console.log("Data submitted successfully");
+
                     // Fetch updated data and update results state
                     const updatedResponse = await fetch("http://localhost:4500/resources");
                     if (updatedResponse.ok) {
                         const updatedData = await updatedResponse.json();
                         setResults(updatedData);
-                        ///////////////////////////////////////////////////////////////////////////
                     } else {
                         console.error("Failed to fetch updated data:", updatedResponse.statusText);
                     }
@@ -70,22 +67,20 @@ export const AddTable = ({ results, setResults }) => {
                 console.error("Failed to submit data:", error.message);
             }
 
-
+            // Clear form inputs after submission
+            setGroup_num('');
+            setName('');
+            setSurname('');
+            setEmail_address('');
+            setAge('');
+            setCourse_name('');
+            setCourse_details('');
+            setCourse_teacher('');
+            setEnrollment_date('');
         }
+    };
 
-        setGroup_num('');
-        setName('');
-        setSurname('');
-        setEmail_address('');
-        setAge('');
-        setCourse_name('');
-        setCourse_details('');
-        setCourse_teacher('');
-        setEnrollment_date('');
-    }
-
-
-
+    // Render the component
     return (
         <div className={styles.addTable}>
             <h1>Add Table</h1>
@@ -144,10 +139,7 @@ export const AddTable = ({ results, setResults }) => {
                 value={enrollment_date}
                 onChange={(e) => setEnrollment_date(e.target.value)} />
 
-
             <button onClick={addData}>ADD</button>
         </div>
-    )
-}
-
-
+    );
+};

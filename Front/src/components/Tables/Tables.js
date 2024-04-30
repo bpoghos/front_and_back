@@ -1,6 +1,7 @@
-import styles from "./Tables.module.css"
 import { Table } from "./Table/Table"
 import { useState } from "react";
+
+import styles from "./Tables.module.css"
 
 export const Tables = ({ results, setResults, handleEditButtonClick, editClick }) => {
 

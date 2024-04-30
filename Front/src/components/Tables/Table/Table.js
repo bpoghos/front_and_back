@@ -1,18 +1,20 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useState } from "react";
+import { Link } from "react-router-dom";
+
 import { FaTrash } from "react-icons/fa";
 import { FaRegFileLines, FaPencil } from "react-icons/fa6";
 import { MdOutlineDone } from "react-icons/md";
-import styles from "../Tables.module.css"
 
+import styles from "../Tables.module.css";
+
+// Define the Table component
 export const Table = ({ results, setResults, d }) => {
 
+    // State variables for checkbox and edit mode
+    const [checkClick, setCheckClick] = useState(false);
+    const [editClick, setEditClick] = useState({});
 
-    const [checkClick, setCheckClick] = useState(false)
-    const [editClick, setEditClick] = useState({})
-    
-
-
+    // State variable to manage field data
     const [fieldsData, setFieldsData] = useState({
         group_num: d?.group_num || '',
         name: d?.name || '',
@@ -23,18 +25,17 @@ export const Table = ({ results, setResults, d }) => {
         course_teacher: d?.course_teacher || '',
         course_details: d?.course_details || '',
         enrollment_date: d?.enrollment_date || ''
-    })
+    });
 
-
+    // Function to handle checkbox click
     const handleCheckClick = (data_id) => {
-        setCheckClick(true)
-
+        setCheckClick(true);
     };
 
-
-
+    // Function to delete data
     const deleteData = async (id) => {
         try {
+            // Send DELETE request to server
             const response = await fetch(`http://localhost:4500/resources/${id}`, {
                 method: "DELETE",
                 headers: {
@@ -42,7 +43,9 @@ export const Table = ({ results, setResults, d }) => {
                 },
             });
 
+            // Check if request is successful
             if (response.ok) {
+                // Remove deleted item from results
                 setResults(results.filter(d => d.enrollment_id !== id));
             } else {
                 // If the server returns an error status code (4xx or 5xx), throw an error
@@ -55,19 +58,26 @@ export const Table = ({ results, setResults, d }) => {
         }
     };
 
-
-
+    // Function to handle field changes
     const handleChangeField = (field, value) => {
         setFieldsData(prevFieldsData => ({
             ...prevFieldsData,
             [field]: value || ''
         }));
     };
-    
- 
 
+    // Function to handle edit button click
+    const handleEditButtonClick = (id) => {
+        setEditClick((prevState) => ({
+            ...prevState,
+            [id]: !prevState[id],
+        }));
+    };
+
+    // Function to handle field editing and update
     const clickChangeField = async (id) => {
         try {
+            // Send PUT request to update data
             const response = await fetch(`http://localhost:4500/resources/${id}`, {
                 method: "PUT",
                 headers: {
@@ -76,8 +86,7 @@ export const Table = ({ results, setResults, d }) => {
                 body: JSON.stringify(fieldsData),
             });
 
-            
-    
+            // Check if request is successful
             if (response.ok) {
                 // Wait for the JSON response
                 const updatedData = await response.json();
@@ -87,20 +96,9 @@ export const Table = ({ results, setResults, d }) => {
         } catch (error) {
             console.error('Error:', error);
         }
-    }
-    
-  
-
-    const handleEditButtonClick = (id) => {
-        setEditClick((prevState) => ({
-            ...prevState,
-            [id]: !prevState[id],
-        }));
     };
 
-
-
-
+    // Render the component
     return (
         <>
             {
@@ -108,7 +106,7 @@ export const Table = ({ results, setResults, d }) => {
                     <td className={styles.inputTD}>
                         <input type="checkbox" onClick={() => handleCheckClick(d.enrollment_id)} />
                     </td>
-                    <td>{editClick[d.enrollment_id] ? <input type="text" value={fieldsData?.group_num} onChange={(e) => handleChangeField('group_num.', e.target.value)}/> : d.group_num}</td>
+                    <td>{editClick[d.enrollment_id] ? <input type="text" value={fieldsData?.group_num} onChange={(e) => handleChangeField('group_num.', e.target.value)} /> : d.group_num}</td>
                     <td>{d.student_id}</td>
                     <td>{editClick[d.enrollment_id] ? <input type="text" value={fieldsData?.name} onChange={(e) => handleChangeField('name', e.target.value)} /> : d.name}</td>
                     <td>{editClick[d.enrollment_id] ? <input type="text" value={fieldsData?.surname} onChange={(e) => handleChangeField('surname', e.target.value)} /> : d.surname}</td>
@@ -127,7 +125,7 @@ export const Table = ({ results, setResults, d }) => {
                         <div
                             onClick={() => handleEditButtonClick(d.enrollment_id)}
                             className={styles.editButton}>
-                            {editClick[d.enrollment_id] ? <MdOutlineDone style={{ color: 'green' }} onClick={() => clickChangeField(d.enrollment_id)}/> : <FaPencil />}
+                            {editClick[d.enrollment_id] ? <MdOutlineDone style={{ color: 'green' }} onClick={() => clickChangeField(d.enrollment_id)} /> : <FaPencil />}
                         </div>
                     </td>
                     <td
@@ -138,5 +136,5 @@ export const Table = ({ results, setResults, d }) => {
                 </tr>
             }
         </>
-    )
-}
+    );
+};
