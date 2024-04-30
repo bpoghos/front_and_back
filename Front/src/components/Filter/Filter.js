@@ -1,21 +1,12 @@
-import { useState } from "react"
 import styles from "./Filter.module.css"
 
-export const Filter = ({ results, setSearchResults }) => {
+export const Filter = ({ handleSearchChange }) => {
  
 
+    const handleInputChange = (e) => {
+        handleSearchChange(e.target.value);
+    };
 
-    const handleSearchChange = (e) => {
-        const query = e.target.value.toLowerCase();
-        if (!query) return setSearchResults(results);
-    
-        const searchedResults = results.filter(item =>
-            (item.name && item.name.toLowerCase().includes(query)) || 
-            (item.course_name && item.course_name.toLowerCase().includes(query))
-        );
-        setSearchResults(searchedResults);
-    }
-    
 
     
     return (
@@ -24,7 +15,7 @@ export const Filter = ({ results, setSearchResults }) => {
             <input
                 type="text"
                 placeholder="Search"
-                onChange={handleSearchChange}
+                onChange={handleInputChange}
             />
 
 

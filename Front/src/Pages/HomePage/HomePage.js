@@ -7,9 +7,12 @@ import styles from "./HomePage.module.css"
 
 
 export const HomePage = () => {
+
+
     const [results, setResults] = useState([])
-    const [searchResults, setSearchResults] = useState([])
+    const [searchQuery, setSearchQuery] = useState("");
     // Get all data function part
+
 
     const getData = async () => {
         try {
@@ -25,7 +28,18 @@ export const HomePage = () => {
         getData()
     }, [])
 
+    
 
+    const handleSearchChange = (query) => {
+        setSearchQuery(query.toLowerCase());
+    };
+
+    
+    const filteredResults = searchQuery
+        ? results.filter(item =>
+            item.name && item.name.toLowerCase().includes(searchQuery)
+          )
+        : results;
 
     // Edit function part
 
@@ -34,11 +48,11 @@ export const HomePage = () => {
     return (
         <div className={styles.homePage}>
             <div className={styles.filterContainer}>
-                <Filter results={results} setSearchResults={setSearchResults}/>
+                <Filter handleSearchChange={handleSearchChange}/>
                 <AddTable results={results} setResults={setResults} />
             </div>
             <Tables
-                results={results}
+                results={filteredResults}
                 setResults={setResults}
             />
         </div>
